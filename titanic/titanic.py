@@ -13,6 +13,7 @@ from sklearn.cross_validation import cross_val_score
 from sklearn import linear_model
 from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score
 from sklearn.learning_curve import learning_curve
+from curve import plot_learning_curve
 
 
 def set_missing_Age(df, rfr=None):
@@ -108,6 +109,9 @@ def model(train_x, train_y):
     print("f1_score: %0.2f (+/- %0.2f)" % (scores.mean(), scores.std() * 2))
     scores = cross_val_score(clf, train_x, train_y, cv=5, scoring='recall')
     print("recall_score: %0.2f (+/- %0.2f)" % (scores.mean(), scores.std() * 2))
+    print '===============模型学习曲线================'
+    
+    plot_learning_curve(clf,'titanic learning_curve',train_x,train_y)
     return clf
 
 

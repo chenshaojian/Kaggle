@@ -24,7 +24,7 @@ from sklearn.learning_curve import learning_curve  #c查看是否过拟合
 import matplotlib.pyplot as plt
 
 
-def plot_learning_curve(estimator, title, X, y, ylim=None, cv=5, train_sizes=np.linspace(.05, 1., 20), plot=True):
+def plot_learning_curve(estimator, title, X, y, ylim=None, cv=5, train_sizes=np.linspace(.1, 1., 20), plot=True):
     """
     画出data在某模型上的learning curve.
     参数解释
@@ -51,10 +51,11 @@ def plot_learning_curve(estimator, title, X, y, ylim=None, cv=5, train_sizes=np.
         plt.xlabel(u"train_sample")
         plt.ylabel(u"score")
         plt.gca().invert_yaxis()
+        #print plt.gca(),plt.gca().invert_yaxis()
         plt.grid()
 
-        plt.fill_between(train_sizes, train_scores_mean - train_scores_std, train_scores_mean + train_scores_std, alpha=0.1, color="b")
-        plt.fill_between(train_sizes, test_scores_mean - test_scores_std, test_scores_mean + test_scores_std, alpha=0.1, color="r")
+        plt.fill_between(train_sizes, train_scores_mean - train_scores_std, train_scores_mean + train_scores_std, alpha=0.2, color="b")
+        plt.fill_between(train_sizes, test_scores_mean - test_scores_std, test_scores_mean + test_scores_std, alpha=0.2, color="r")
         plt.plot(train_sizes, train_scores_mean, 'o-', color="b", label=u"train_score")
         plt.plot(train_sizes, test_scores_mean, 'o-', color="r", label=u"cross_validation_score")
 
@@ -64,9 +65,11 @@ def plot_learning_curve(estimator, title, X, y, ylim=None, cv=5, train_sizes=np.
         plt.show()
         plt.gca().invert_yaxis()
         plt.savefig("learn_curve.jpg")
-
+    # midpoint 表示 训练score的最高值和测试score的最小值的平均
     midpoint = ((train_scores_mean[-1] + train_scores_std[-1]) + (test_scores_mean[-1] - test_scores_std[-1])) / 2
+    # diff表示 训练score的最高值和测试score的最小值的差
     diff = (train_scores_mean[-1] + train_scores_std[-1]) - (test_scores_mean[-1] - test_scores_std[-1])
+
     return midpoint, diff
 
 
@@ -78,4 +81,4 @@ if __name__ == '__main__':
     X_train, X_test, y_train, y_test = train_test_split(iris.data, iris.target, test_size=0.4, random_state=0)
     Gmodel = GaussianNB()
     train_sizes, train_scores, test_scores = learning_curve(Gmodel, X_train, y_train, train_sizes=np.linspace(0.1, 1.0, 5), cv=3)
-    plot_learning_curve(Gmodel, u"learning curve", X_train, y_train)
+    plot_learning_curve(Gmodel, u"learning curve", X_train, y_train,plot=True)
