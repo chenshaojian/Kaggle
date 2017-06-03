@@ -3,8 +3,6 @@
 # vim:fenc=utf-8
 #
 # Copyright © 2017 chen <chen@chenMBP>
-#
-# Distributed under terms of the MIT license.
 """
 http://blog.csdn.net/zhouwenyuan1015/article/details/65448285
 模型过拟合查看
