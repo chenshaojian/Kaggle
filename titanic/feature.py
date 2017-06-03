@@ -1,5 +1,6 @@
 #-*-coding:utf-8
 '''
+版本号:v1.0
 处理缺失数据和数据的数值化
 '''
 from sklearn.ensemble import RandomForestRegressor
