@@ -3,12 +3,16 @@
 版本号:v1.0
 处理缺失数据和数据的数值化
 '''
-from sklearn.ensemble import RandomForestRegressor
+import sys
 import pandas as pd
 import numpy as np
+
 import sklearn.preprocessing as preprocessing
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.cross_validation import cross_val_score
 from sklearn import linear_model
-import sys
+from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score
+from sklearn.learning_curve import learning_curve
 
 
 def set_missing_Age(df, rfr=None):
@@ -87,7 +91,52 @@ def model(train_x, train_y):
     train_y = np.array(train_y, dtype=int)
     clf = linear_model.LogisticRegression(C=1.0, penalty='l1', tol=1e-6)
     clf.fit(train_x, train_y)
+    '''
+    交叉验证
+    'accuracy', 'adjusted_rand_score', 'average_precision', 'f1', 'f1_macro', 'f1_micro',
+    'f1_samples', 'f1_weighted', 'log_loss', 'mean_absolute_error', 'mean_squared_error',
+    'median_absolute_error', 'precision', 'precision_macro', 'precision_micro', 'precision_samples',
+    'precision_weighted', 'r2', 'recall', 'recall_macro', 'recall_micro', 'recall_samples', 'recall_weighted'
+    # 正确率
+    '''
+    print '=============模型交叉数据评价==============='
+    scores = cross_val_score(clf, train_x, train_y, cv=5)
+    print("Accuracy: %0.2f (+/- %0.2f)" % (scores.mean(), scores.std() * 2))
+    scores = cross_val_score(clf, train_x, train_y, cv=5, scoring='precision')
+    print("Precision: %0.2f (+/- %0.2f)" % (scores.mean(), scores.std() * 2))
+    scores = cross_val_score(clf, train_x, train_y, cv=5, scoring='f1')
+    print("f1_score: %0.2f (+/- %0.2f)" % (scores.mean(), scores.std() * 2))
+    scores = cross_val_score(clf, train_x, train_y, cv=5, scoring='recall')
+    print("recall_score: %0.2f (+/- %0.2f)" % (scores.mean(), scores.std() * 2))
     return clf
+
+
+def evaluate(test_y, pred_y):
+    '''
+    http://bookshadow.com/weblog/2014/06/10/precision-recall-f-measure/
+    TP: 预测为正， 实际为正
+    FP: 预测为正， 实际为负
+    TN: 预测为负，实际为负
+    FN: 预测为负， 实际为正
+    准确率/精确率precision： TP/ (TP+FP)
+    正确率Accuracy = 提取出的正确信息条数 /  提取出的信息条数
+    召回率： TP/ (TP +FN) 召回率 = 提取出的正确信息条数 /  样本中的信息条数
+    F值  = 正确率 * 召回率 * 2 / (正确率 + 召回率) 比较综合的考虑
+    举例来说：
+        一个数据库有500个文档，其中有50个文档符合定义的问题。系统检索到75个文档，但是只有45个符合定义的问题。
+        召回率R=45/50=90% ,精度P=45/75=60%
+        召回率高表明搜索比较有效，精度差说明噪声大.
+    是否过拟合
+    '''
+    precision = precision_score(y_test, pred_y)
+    f1 = f1_score(y_test, pred_y)
+    accuracy = accuracy_score(y_test, pred_y)
+    recall = recall_score(y_test, pred_y)
+    print '=============测试数据评价==============='
+    print '精确率=', precision
+    print 'f1=', f1
+    print '召回率=', recall
+    print 'Accuracy=', accuracy
 
 
 def main():
@@ -110,11 +159,12 @@ def main():
     test_df = test_df.filter(regex='Age.*|SibSp|Parch|Fare.*|Cabin.*|Embarked.*|Sex.*|Pclass.*')
     test_data = test_df.as_matrix()
     test_x = test_data
-    print train_x.shape, test_x.shape
     clf = model(train_x, train_y)
     test_x = np.array(test_x, dtype=int)
-    pred = clf.predict(test_x)
-    return pred
+    pred_y = clf.predict(test_x)
+    #得分
+    #print clf.score(pred_y, test_y)
+    #return pred_y
 
 
 if __name__ == '__main__':
